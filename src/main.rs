@@ -1,5 +1,6 @@
-extern crate calculator;
+mod calculator;
 
 fn main() {
-    calculator::ui::say_hello();
+    let cal = calculator::Calculator::new();
+    cal.run();
 }
