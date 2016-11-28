@@ -23,20 +23,24 @@
 
 ## Backus–Naur Form ##
 ``` BNF
-<expr>    ::= <expr> "+" <term>
-            | <expr> "-" <term>
+<expr>    ::= <term> "+" <expr>
+            | <term> "-" <expr>
             | <term>
 
-<term>    ::= <term> "*" <factor>
-            | <term> "/" <factor>
+<term>    ::= <factor> "*" <term>
+            | <factor> "/" <term>
+            | <factor>
 
 <factor>  ::= "(" <expr> ")"
             | <integer>
 
-<integer> ::= "-" <integer>
-            | <digit> <integer>
-            | <digit>
+<integer> ::= "-" <number>
+            | "+" <number>
+            | <number>
 
+<number>  ::= <digit> <number>
+            | <digit>
+            
 <digit>   ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 ```
 
@@ -54,3 +58,5 @@ calculator
 |   └──	mod.rs
 └──	lib.rs
             
+## References ##
+[Elementary arithmetic](https://en.wikipedia.org/wiki/Elementary_arithmetic)
