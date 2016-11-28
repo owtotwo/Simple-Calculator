@@ -23,6 +23,9 @@ impl Calculator {
 
             let user_input = self.get_input();
 
+            if user_input.len() == 0 { break; }
+            if user_input.trim().len() == 0 { continue; }
+
             let expr = match self.parse_expr(&user_input) {
                 Ok(expr) => expr,
                 Err(err) => {
@@ -30,8 +33,6 @@ impl Calculator {
                     continue;
                 },
             };
-
-            println!("{}", expr);
 
             let result = match self.eval(&expr) {
                 Ok(result) => result,
@@ -52,7 +53,7 @@ impl Calculator {
         let mut line = String::new();
         io::stdin().read_line(&mut line).expect(
             "can not get chars from stdin");
-        let line = line.trim().to_string();
+        let line = line.to_string();
         line
     }
 
