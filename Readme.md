@@ -45,7 +45,7 @@
 ```
 
 ## Project Structure ##
-``` directory tree
+``` Directory-Tree
 src
 ├── calculator
 │   ├── mod.rs
