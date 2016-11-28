@@ -17,7 +17,7 @@ impl Term {
         }
     }
 
-    pub fn parse(raw_term: &str) -> Result<(Term, &str), String> {
+    pub fn parse(raw_term: &str) -> Result<(Term, &str), &str> {
         let mut term = Term::new();
         let mut rest_of_expr = raw_term.trim_left();
 

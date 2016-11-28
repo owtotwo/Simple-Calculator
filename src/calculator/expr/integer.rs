@@ -8,7 +8,7 @@ impl Integer {
         Integer(n)
     }
 
-    pub fn parse(raw_int: &str) -> Result<(Integer, &str), String> {
+    pub fn parse(raw_int: &str) -> Result<(Integer, &str), &str> {
         let mut number: i64 = 0;
         let is_neg: bool;
         let mut rest_of_expr = raw_int.trim_left();
@@ -27,7 +27,7 @@ impl Integer {
             }
         };
 
-        let mut count: usize = 0;
+        let mut move_count: usize = 0;
 
         for c in rest_of_expr.chars() {
             let digit = match c.to_digit(10) {
@@ -37,15 +37,15 @@ impl Integer {
             number = number * 10 + digit;
             if !is_neg && number > i32::max_value() as i64 ||
                     is_neg && number < i32::min_value() as i64 {
-                return Err(format!("Parse Integer Overflow!"));
+                return Err("Parse Integer Overflow!");
             }
-            count += 1;
+            move_count += 1;
         }
 
-        if count == 0 {
-            return Err("Expect a digit!".to_string());
+        if move_count == 0 {
+            return Err("Expect a digit!");
         } else {
-            rest_of_expr = &rest_of_expr[count..];
+            rest_of_expr = &rest_of_expr[move_count..];
         }
 
         let integer = Integer::new(

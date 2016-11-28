@@ -31,6 +31,8 @@ impl Calculator {
                 },
             };
 
+            println!("{}", expr);
+
             let result = match self.eval(&expr) {
                 Ok(result) => result,
                 Err(err) => {
@@ -43,10 +45,6 @@ impl Calculator {
         }
     }
 }
-
-///////////////////////////////////////////////
-//  Detials
-///////////////////////////////////////////////
 
 impl Calculator {
 
@@ -63,13 +61,13 @@ impl Calculator {
         io::stdout().flush().unwrap();
     }
 
-    fn parse_expr(&self, expr: &str) -> Result<Expr, String> {
+    fn parse_expr<'a>(&'a self, expr: &'a str) -> Result<Expr, &str> {
         match Expr::parse(expr) {
             Ok((expr, dirty_expr)) => {
                 if dirty_expr.trim_right().len() == 0 {
                     Ok(expr)
                 } else {
-                    Err("Too More Chars".to_string())
+                    Err("Too More Chars")
                 }
             },
             Err(err) => Err(err),

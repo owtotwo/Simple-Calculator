@@ -40,23 +40,23 @@
 
 <number>  ::= <digit> <number>
             | <digit>
-            
+
 <digit>   ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 ```
 
 ## Project Structure ##
-calculator
-├──	main.rs
-├──	lib.rs
-├──	user_interface
-|   ├──	farewells.rs
-|   ├──	greetings.rs
-|   └──	mod.rs
-├──	user_interface
-|   ├──	farewells.rs
-|   ├──	greetings.rs
-|   └──	mod.rs
-└──	lib.rs
-            
+src
+├── calculator
+│   ├── mod.rs
+│   ├── expr
+│   │   ├── mod.rs
+│   │   ├── integer.rs
+│   │   ├── factor.rs
+│   │   ├── operator.rs
+│   │   └── term.rs
+│   └── utils.rs(abandoned)
+└── main.rs
+
+
 ## References ##
 [Elementary arithmetic](https://en.wikipedia.org/wiki/Elementary_arithmetic)

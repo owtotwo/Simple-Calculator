@@ -22,7 +22,7 @@ impl Expr {
         }
     }
 
-    pub fn parse(raw_expr: &str) -> Result<(Expr, &str), String> {
+    pub fn parse(raw_expr: &str) -> Result<(Expr, &str), &str> {
         let mut expr = Expr::new();
         let mut rest_of_expr = raw_expr.trim_left();
 
