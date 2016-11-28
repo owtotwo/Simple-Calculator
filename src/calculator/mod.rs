@@ -2,13 +2,15 @@ mod expr;
 
 use self::expr::Expr;
 use std::io;
-use std::io::Write;
+use std::io::Write; // for stdout().write()
 
 const PROMPT_DEFAULT: &'static str = ">> ";
+
 
 pub struct Calculator {
     prompt: String,
 }
+
 
 impl Calculator {
     pub fn new() -> Calculator {
@@ -19,7 +21,7 @@ impl Calculator {
     
     pub fn cli(&self) {
         loop {
-            self.disp(self.prompt.clone());
+            self.disp(&self.prompt, false);
 
             let user_input = self.get_input();
 
@@ -29,7 +31,7 @@ impl Calculator {
             let expr = match self.parse_expr(&user_input) {
                 Ok(expr) => expr,
                 Err(err) => {
-                    self.disp(format!("{}\n", err));
+                    self.disp(err, true);
                     continue;
                 },
             };
@@ -37,18 +39,18 @@ impl Calculator {
             let result = match self.eval(&expr) {
                 Ok(result) => result,
                 Err(err) => {
-                    self.disp(format!("{}\n", err));
+                    self.disp(err, true);
                     continue;
                 },
             };
 
-            self.disp(format!("{}\n", result));
+            self.disp(&result.to_string(), true);
         }
     }
 }
 
-impl Calculator {
 
+impl Calculator {
     fn get_input(&self) -> String {
         let mut line = String::new();
         io::stdin().read_line(&mut line).expect(
@@ -57,9 +59,11 @@ impl Calculator {
         line
     }
 
-    fn disp(&self, msg: String) {
-        io::stdout().write(msg.as_bytes()).unwrap();
-        io::stdout().flush().unwrap();
+    fn disp(&self, msg: &str, newline: bool) {
+        let mut stdout = io::stdout();
+        stdout.write(msg.as_bytes()).unwrap();
+        if newline { stdout.write(msg.as_bytes()).unwrap(); }
+        stdout.flush().unwrap();
     }
 
     fn parse_expr<'a>(&'a self, expr: &'a str) -> Result<Expr, &str> {
