@@ -62,7 +62,7 @@ impl Calculator {
     fn disp(&self, msg: &str, newline: bool) {
         let mut stdout = io::stdout();
         stdout.write(msg.as_bytes()).unwrap();
-        if newline { stdout.write(msg.as_bytes()).unwrap(); }
+        if newline { stdout.write("\n".as_bytes()).unwrap(); }
         stdout.flush().unwrap();
     }
 
