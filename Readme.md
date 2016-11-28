@@ -45,6 +45,7 @@
 ```
 
 ## Project Structure ##
+``` directory tree
 src
 ├── calculator
 │   ├── mod.rs
@@ -56,7 +57,7 @@ src
 │   │   └── term.rs
 │   └── utils.rs(abandoned)
 └── main.rs
-
+```
 
 ## References ##
 [Elementary arithmetic](https://en.wikipedia.org/wiki/Elementary_arithmetic)
