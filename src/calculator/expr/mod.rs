@@ -43,9 +43,7 @@ impl Expr {
                 expr.operator = Some(operator);
                 rest_of_expr = dirty_expr;
             },
-            Ok(_) | Err(_) => {
-                return Ok((expr, rest_of_expr));
-            }
+            _ => return Ok((expr, rest_of_expr)),
         };
 
         match Expr::parse(rest_of_expr) {
@@ -60,23 +58,15 @@ impl Expr {
     }
 
     pub fn eval(&self) -> Result<i32, &str> {
-        let result = match self.term.eval() {
-            Ok(result) => result,
-            Err(err) => { return Err(err); }
-        };
+        let result = try!(self.term.eval());
         
         if self.operator.is_none() || self.subexpr.is_none() {
             return Ok(result);
         }
 
-        let diff_result = match self.subexpr {
-            Some(ref expr) => expr.eval(),
+        let diff = match self.subexpr {
+            Some(ref expr) => try!(expr.eval()),
             None => unreachable!(),
-        };
-
-        let diff = match diff_result {
-            Ok(result) => result,
-            Err(err) => { return Err(err); }
         };
 
         let (result, is_overflow) = match self.operator {
@@ -85,25 +75,21 @@ impl Expr {
             _ => unreachable!(),
         };
 
-        if is_overflow {
-            Err("Evaluation Overflow!")
-        } else {
-            Ok(result)
-        }
+        if is_overflow { Err("Evaluation Overflow!") } else { Ok(result) }
     }
 }
 
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &Expr {
+        match *self {
+            Expr {
                 subexpr: Some(ref subexpr),
                 ref term,
                 operator: Some(ref operator),
             } =>
-                write!(f, "{} {} {}", *subexpr, operator, *term),
-            &Expr { ref term, .. } =>
-                write!(f, "{}", *term),
+                write!(f, "{} {} {}", subexpr, operator, term),
+            Expr { ref term, .. } =>
+                write!(f, "{}", term),
         }
     }
 }

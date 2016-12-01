@@ -25,13 +25,13 @@ impl Operator {
 
 impl fmt::Display for Operator {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            &Operator::Addition => '+',
-            &Operator::Subtraction => '-',
-            &Operator::Multiplication => '*',
-            &Operator::Division => '/',
-            &Operator::LeftBracket => '(',
-            &Operator::RightBracket => ')',
+        write!(f, "{}", match *self {
+            Operator::Addition       => '+',
+            Operator::Subtraction    => '-',
+            Operator::Multiplication => '*',
+            Operator::Division       => '/',
+            Operator::LeftBracket    => '(',
+            Operator::RightBracket   => ')',
         })
     }
 }

@@ -43,8 +43,7 @@ pub mod log {
         // remove the log file
         fn clear(&self) {
             fs::remove_file(self.output_addr).expect(
-                &format!("can not remove file {}.",
-                        self.output_addr.display())
+                &format!("can not remove file {}.", self.output_addr.display())
             );
         }
     }

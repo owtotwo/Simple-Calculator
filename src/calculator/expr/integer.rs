@@ -4,9 +4,7 @@ use super::operator::Operator;
 pub struct Integer(i32);
 
 impl Integer {
-    pub fn new(n: i32) -> Integer {
-        Integer(n)
-    }
+    pub fn new(n: i32) -> Integer { Integer(n) }
 
     pub fn parse(raw_int: &str) -> Result<(Integer, &str), &str> {
         let mut number: i64 = 0;
@@ -22,9 +20,7 @@ impl Integer {
                 is_neg = true;
                 rest_of_expr = dirty_expr;
             },
-            Ok(_) | Err(_) => {
-                is_neg = false;
-            }
+            _ => is_neg = false,
         };
 
         let mut move_count: usize = 0;
@@ -32,7 +28,7 @@ impl Integer {
         for c in rest_of_expr.chars() {
             let digit = match c.to_digit(10) {
                 Some(digit) => digit as i64,
-                None => { break; },
+                None => break,
             };
             number = number * 10 + digit;
             if !is_neg && number > i32::max_value() as i64 ||
@@ -55,9 +51,7 @@ impl Integer {
         Ok((integer, rest_of_expr))
     }
 
-    pub fn eval(&self) -> Result<i32, &str> {
-        Ok(self.0)
-    }
+    pub fn eval(&self) -> Result<i32, &str> { Ok(self.0) }
 }
 
 impl fmt::Display for Integer {

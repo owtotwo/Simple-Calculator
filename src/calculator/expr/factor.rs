@@ -22,20 +22,15 @@ impl Factor {
                 rest_of_expr = dirty_factor;
                 is_integer = false;
             },
-            Ok(_) | Err(_) => {
-                is_integer = true;
-            }
+            _ => is_integer = true,
         }
 
         if is_integer {
 
             match Integer::parse(rest_of_expr) {
-                Ok((integer, dirty_factor)) => {
-                    return Ok((Factor::Integer(integer), dirty_factor));
-                },
-                Err(err) => {
-                    return Err(err);
-                }
+                Ok((integer, dirty_factor)) =>
+                    return Ok((Factor::Integer(integer), dirty_factor)),
+                Err(err) => return Err(err),
             }
 
         } else { // Is a Bracket Expression (expect a left bracket)
@@ -45,21 +40,15 @@ impl Factor {
                     rest_of_expr = dirty_factor;
                     Factor::Expr(Box::new(expr))
                 },
-                Err(err) => {
-                    return Err(err);
-                },
+                Err(err) => return Err(err),
             };
 
             match Operator::parse(rest_of_expr) {
                 Ok((Operator::RightBracket, dirty_factor)) => {
                     rest_of_expr = dirty_factor;
                 },
-                Ok(_) => {
-                    return Err("Expect a ')'");
-                },
-                Err(err) => {
-                    return Err(err);
-                },
+                Ok(_) => return Err("Expect a ')'"),
+                Err(err) => return Err(err),
             };
 
             Ok((factor, rest_of_expr))
@@ -67,18 +56,18 @@ impl Factor {
     }
 
     pub fn eval(&self) -> Result<i32, &str> {
-        match self {
-            &Factor::Expr(ref expr) => expr.eval(),
-            &Factor::Integer(ref integer) => integer.eval(),
+        match *self {
+            Factor::Expr(ref expr) => expr.eval(),
+            Factor::Integer(ref integer) => integer.eval(),
         }
     }
 }
 
 impl fmt::Display for Factor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &Factor::Expr(ref expr) => write!(f, "({})", expr),
-            &Factor::Integer(ref integer) => write!(f, "{}", integer),
+        match *self {
+            Factor::Expr(ref expr) => write!(f, "({})", expr),
+            Factor::Integer(ref integer) => write!(f, "{}", integer),
         }
     }
 }
