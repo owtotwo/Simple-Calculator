@@ -1,8 +1,4 @@
 use std::fmt;
-use std::error::{self, Error};
-
-use super::Result;
-
 
 pub enum Operator {
     Addition,       // "+"
@@ -14,15 +10,15 @@ pub enum Operator {
 }
 
 impl Operator {
-    pub fn parse(raw_expr: &str) -> Result<(Operator, &str)> {
+    pub fn parse(raw_expr: &str) -> Option<(Operator, &str)> {
         match raw_expr.trim_left() {
-            s if s.starts_with("+") => Ok((Operator::Addition,       &s[1..])),
-            s if s.starts_with("-") => Ok((Operator::Subtraction,    &s[1..])),
-            s if s.starts_with("*") => Ok((Operator::Multiplication, &s[1..])),
-            s if s.starts_with("/") => Ok((Operator::Division,       &s[1..])),
-            s if s.starts_with("(") => Ok((Operator::LeftBracket,    &s[1..])),
-            s if s.starts_with(")") => Ok((Operator::RightBracket,   &s[1..])),
-            _ => Err(Box::new(ParseOperatorError)),
+            s if s.starts_with("+") => Some((Operator::Addition,       &s[1..])),
+            s if s.starts_with("-") => Some((Operator::Subtraction,    &s[1..])),
+            s if s.starts_with("*") => Some((Operator::Multiplication, &s[1..])),
+            s if s.starts_with("/") => Some((Operator::Division,       &s[1..])),
+            s if s.starts_with("(") => Some((Operator::LeftBracket,    &s[1..])),
+            s if s.starts_with(")") => Some((Operator::RightBracket,   &s[1..])),
+            _ => None,
         }
     }
 }
@@ -39,9 +35,3 @@ impl fmt::Display for Operator {
         })
     }
 }
-
-
-new_error_type!(
-    ParseOperatorError,
-    "expect '+', '-', '*', '/', '(' or ')'"
-);

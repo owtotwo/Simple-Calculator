@@ -1,8 +1,6 @@
 use std::fmt;
 use super::factor::Factor;
 use super::operator::Operator;
-use super::Result;
-use super::error::{EvalError, EvalErrorKind};
 
 pub struct Term {
     subterm: Option<Box<Term>>,
@@ -19,63 +17,63 @@ impl Term {
         }
     }
 
-    pub fn parse(raw_term: &str) -> Result<(Term, &str)> {
+    pub fn parse(raw_term: &str) -> Option<(Term, &str)> {
         let mut term = Term::new();
         let mut rest_of_expr = raw_term.trim_left();
 
-        Factor::parse(rest_of_expr).map(|(factor, dirty_term)| {
+        if let None = Factor::parse(rest_of_expr).map(|(factor, dirty_term)| {
             term.factor = Box::new(factor);
             rest_of_expr = dirty_term;
-        }) ?;
+        }) { return None; };
 
         match Operator::parse(rest_of_expr) {
-            Ok((operator @ Operator::Multiplication, dirty_term)) => {
+            Some((operator @ Operator::Multiplication, dirty_term)) => {
                 term.operator = Some(operator);
                 rest_of_expr = dirty_term;
             },
-            Ok((operator @ Operator::Division, dirty_term)) => {
+            Some((operator @ Operator::Division, dirty_term)) => {
                 term.operator = Some(operator);
                 rest_of_expr = dirty_term;
             },
-            Ok(_) | Err(_) => return Ok((term, rest_of_expr)),
+            _ => return Some((term, rest_of_expr)),
         };
 
-        Term::parse(rest_of_expr).map(|(subterm, dirty_term)| {
+        if let None = Term::parse(rest_of_expr).map(|(subterm, dirty_term)| {
             term.subterm = Some(Box::new(subterm));
             rest_of_expr = dirty_term;
-        }) ?;
+        }) { return None; };
 
-        Ok((term, rest_of_expr))
+        Some((term, rest_of_expr))
     }
 
-    pub fn eval(&self) -> Result<i32> {
-        let result = self.factor.eval()?;
+    pub fn eval(&self) -> Option<i32> {
+        let result = match self.factor.eval() {
+            Some(val) => val,
+            None => return None,
+        };
         
         if self.operator.is_none() || self.subterm.is_none() {
-            return Ok(result);
+            return Some(result);
         }
 
         let times = match self.subterm {
-            Some(ref term) => term.eval()?,
+            Some(ref term) => match term.eval() {
+                Some(val) => val,
+                None => return None,
+            },
             None => unreachable!(),
         };
 
         let (result, is_overflow) = match self.operator {
             Some(Operator::Multiplication) => result.overflowing_mul(times),
             Some(Operator::Division) => {
-                if times == 0 {
-                    return Err(Box::new(EvalError { kind: EvalErrorKind::DivideByZero }));
-                }
+                if times == 0 { return None; }
                 result.overflowing_div(times)
             }
             _ => unreachable!(),
         };
 
-        if is_overflow {
-            Err(Box::new(EvalError { kind: EvalErrorKind::Overflow }))
-        } else {
-            Ok(result)
-        }
+        if is_overflow { None } else { Some(result) }
     }
 }
 

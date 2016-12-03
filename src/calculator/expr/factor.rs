@@ -1,7 +1,6 @@
 use std::fmt;
-use std::error::{self, Error};
 
-use super::{Expr, Result};
+use super::Expr;
 use super::operator::Operator;
 use super::integer::Integer;
 
@@ -17,12 +16,12 @@ impl Factor {
         Factor::Integer(Integer(0))
     }
 
-    pub fn parse(raw_factor: &str) -> Result<(Factor, &str)> {
+    pub fn parse(raw_factor: &str) -> Option<(Factor, &str)> {
         let mut rest_of_expr = raw_factor.trim_left();
         let is_integer;
 
         match Operator::parse(rest_of_expr) { // lookahead
-            Ok((Operator::LeftBracket, dirty_factor)) => {
+            Some((Operator::LeftBracket, dirty_factor)) => {
                 rest_of_expr = dirty_factor;
                 is_integer = false;
             },
@@ -38,25 +37,25 @@ impl Factor {
         } else { // Is a Bracket Expression (expect a left bracket)
 
             let factor = match Expr::parse(rest_of_expr) {
-                Ok((expr, dirty_factor)) => {
+                Some((expr, dirty_factor)) => {
                     rest_of_expr = dirty_factor;
                     Factor::Expr(Box::new(expr))
                 },
-                _ => return Err(Box::new(ParseFactorError)),
+                _ => return None,
             };
 
             match Operator::parse(rest_of_expr) {
-                Ok((Operator::RightBracket, dirty_factor)) => {
+                Some((Operator::RightBracket, dirty_factor)) => {
                     rest_of_expr = dirty_factor;
                 },
-                _ => return Err(Box::new(ParseFactorError)),
+                _ => return None,
             };
 
-            Ok((factor, rest_of_expr))
+            Some((factor, rest_of_expr))
         }
     }
 
-    pub fn eval(&self) -> Result<i32> {
+    pub fn eval(&self) -> Option<i32> {
         match *self {
             Factor::Expr(ref expr) => expr.eval(),
             Factor::Integer(ref integer) => integer.eval(),
@@ -73,6 +72,3 @@ impl fmt::Display for Factor {
         }
     }
 }
-
-
-new_error_type!(ParseFactorError);

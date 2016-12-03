@@ -1,17 +1,12 @@
-use super::super::std;
 use std::fmt;
 use self::term::Term;
 use self::operator::Operator;
-use self::error::{EvalError, EvalErrorKind};
 
-#[macro_use]
-mod error;
 mod operator;
 mod term;
 mod factor;
 mod integer;
 
-type Result<T> = std::result::Result<T, Box<std::error::Error>>;
 
 pub struct Expr {
     subexpr: Option<Box<Expr>>,
@@ -28,46 +23,50 @@ impl Expr {
         }
     }
 
-    pub fn parse(raw_expr: &str) -> Result<(Expr, &str)> {
+    pub fn parse(raw_expr: &str) -> Option<(Expr, &str)> {
         let mut expr = Expr::new();
         let mut rest_of_expr = raw_expr.trim_left();
 
-        Term::parse(rest_of_expr).and_then(|(term, dirty_expr)| {
+        if let None = Term::parse(rest_of_expr).map(|(term, dirty_expr)| {
             expr.term = Box::new(term);
             rest_of_expr = dirty_expr;
-            Ok(())
-        }) ?;
+        }) { return None; };
 
         match Operator::parse(rest_of_expr) {
-            Ok((operator @ Operator::Addition, dirty_expr)) => {
+            Some((operator @ Operator::Addition, dirty_expr)) => {
                 expr.operator = Some(operator);
                 rest_of_expr = dirty_expr;
             },
-            Ok((operator @ Operator::Subtraction, dirty_expr)) => {
+            Some((operator @ Operator::Subtraction, dirty_expr)) => {
                 expr.operator = Some(operator);
                 rest_of_expr = dirty_expr;
             },
-            _ => return Ok((expr, rest_of_expr)),
+            _ => return Some((expr, rest_of_expr)),
         };
 
-        Expr::parse(rest_of_expr).and_then(|(subexpr, dirty_expr)| {
+        if let None = Expr::parse(rest_of_expr).map(|(subexpr, dirty_expr)| {
             expr.subexpr = Some(Box::new(subexpr));
             rest_of_expr = dirty_expr;
-            Ok(())
-        }) ?;
+        }) { return None; };
 
-        Ok((expr, rest_of_expr))
+        Some((expr, rest_of_expr))
     }
 
-    pub fn eval(&self) -> Result<i32> {
-        let result = self.term.eval()?;
+    pub fn eval(&self) -> Option<i32> {
+        let result = match self.term.eval() {
+            Some(val) => val,
+            None => return None,
+        };
         
         if self.operator.is_none() || self.subexpr.is_none() {
-            return Ok(result);
+            return Some(result);
         }
 
         let diff = match self.subexpr {
-            Some(ref expr) => expr.eval() ?,
+            Some(ref expr) => match expr.eval() {
+                Some(val) => val,
+                None => return None,
+            },
             None => unreachable!(),
         };
 
@@ -77,11 +76,7 @@ impl Expr {
             _ => unreachable!(),
         };
 
-        if is_overflow {
-            Err(Box::new(EvalError { kind: EvalErrorKind::Overflow }))
-        } else {
-            Ok(result)
-        }
+        if is_overflow { None } else { Some(result) }
     }
 }
 
