@@ -1,4 +1,6 @@
 use std::fmt;
+use super::Result;
+
 
 pub enum Operator {
     Addition,       // "+"
@@ -10,7 +12,7 @@ pub enum Operator {
 }
 
 impl Operator {
-    pub fn parse(raw_expr: &str) -> Result<(Operator, &str), &str> {
+    pub fn parse(raw_expr: &str) -> Result<(Operator, &str)> {
         match raw_expr.trim_left() {
             s if s.starts_with("+") => Ok((Operator::Addition,       &s[1..])),
             s if s.starts_with("-") => Ok((Operator::Subtraction,    &s[1..])),
@@ -18,7 +20,7 @@ impl Operator {
             s if s.starts_with("/") => Ok((Operator::Division,       &s[1..])),
             s if s.starts_with("(") => Ok((Operator::LeftBracket,    &s[1..])),
             s if s.starts_with(")") => Ok((Operator::RightBracket,   &s[1..])),
-            _ => Err("Expect '+', '-', '*', '/', '(' or ')'."),
+            _ => Err(Box::new(ParseOperatorError)),
         }
     }
 }
@@ -35,3 +37,9 @@ impl fmt::Display for Operator {
         })
     }
 }
+
+use std::error::Error;
+new_error_type!(
+    ParseOperatorError,
+    "expect '+', '-', '*', '/', '(' or ')'"
+);

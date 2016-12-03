@@ -1,6 +1,8 @@
 use std::fmt;
 use super::factor::Factor;
 use super::operator::Operator;
+use super::Result;
+use super::error::{EvalError, EvalErrorKind};
 
 pub struct Term {
     subterm: Option<Box<Term>>,
@@ -17,17 +19,14 @@ impl Term {
         }
     }
 
-    pub fn parse(raw_term: &str) -> Result<(Term, &str), &str> {
+    pub fn parse(raw_term: &str) -> Result<(Term, &str)> {
         let mut term = Term::new();
         let mut rest_of_expr = raw_term.trim_left();
 
-        match Factor::parse(rest_of_expr) {
-            Err(err) => return Err(err),
-            Ok((factor, dirty_term)) => {
-                term.factor = Box::new(factor);
-                rest_of_expr = dirty_term;
-            }
-        };
+        Factor::parse(rest_of_expr).map(|(factor, dirty_term)| {
+            term.factor = Box::new(factor);
+            rest_of_expr = dirty_term;
+        }) ?;
 
         match Operator::parse(rest_of_expr) {
             Ok((operator @ Operator::Multiplication, dirty_term)) => {
@@ -41,41 +40,45 @@ impl Term {
             Ok(_) | Err(_) => return Ok((term, rest_of_expr)),
         };
 
-        match Term::parse(rest_of_expr) {
-            Err(err) => return Err(err),
-            Ok((subterm, dirty_term)) => {
-                term.subterm = Some(Box::new(subterm));
-                rest_of_expr = dirty_term;
-            }
-        };
+        Term::parse(rest_of_expr).map(|(subterm, dirty_term)| {
+            term.subterm = Some(Box::new(subterm));
+            rest_of_expr = dirty_term;
+        }) ?;
 
         Ok((term, rest_of_expr))
     }
 
-    pub fn eval(&self) -> Result<i32, &str> {
-        let result = try!(self.factor.eval());
+    pub fn eval(&self) -> Result<i32> {
+        let result = self.factor.eval()?;
         
         if self.operator.is_none() || self.subterm.is_none() {
             return Ok(result);
         }
 
         let times = match self.subterm {
-            Some(ref term) => try!(term.eval()),
+            Some(ref term) => term.eval()?,
             None => unreachable!(),
         };
 
         let (result, is_overflow) = match self.operator {
             Some(Operator::Multiplication) => result.overflowing_mul(times),
             Some(Operator::Division) => {
-                if times == 0 { return Err("Can not divide by zero!"); }
+                if times == 0 {
+                    return Err(Box::new(EvalError { kind: EvalErrorKind::DivideByZero }));
+                }
                 result.overflowing_div(times)
             }
             _ => unreachable!(),
         };
 
-        if is_overflow { Err("Evaluation Overflow!") } else { Ok(result) }
+        if is_overflow {
+            Err(Box::new(EvalError { kind: EvalErrorKind::Overflow }))
+        } else {
+            Ok(result)
+        }
     }
 }
+
 
 impl fmt::Display for Term {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

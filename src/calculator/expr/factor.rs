@@ -1,19 +1,21 @@
 use std::fmt;
-use super::Expr;
+use super::{Expr, Result};
 use super::operator::Operator;
 use super::integer::Integer;
+
 
 pub enum Factor {
     Expr(Box<Expr>),
     Integer(Integer),
 }
 
+
 impl Factor {
     pub fn new() -> Factor {
-        Factor::Integer(Integer::new(0))
+        Factor::Integer(Integer(0))
     }
 
-    pub fn parse(raw_factor: &str) -> Result<(Factor, &str), &str> {
+    pub fn parse(raw_factor: &str) -> Result<(Factor, &str)> {
         let mut rest_of_expr = raw_factor.trim_left();
         let is_integer;
 
@@ -27,11 +29,9 @@ impl Factor {
 
         if is_integer {
 
-            match Integer::parse(rest_of_expr) {
-                Ok((integer, dirty_factor)) =>
-                    return Ok((Factor::Integer(integer), dirty_factor)),
-                Err(err) => return Err(err),
-            }
+            Integer::parse(rest_of_expr).map(|(integer, dirty_factor)|
+                (Factor::Integer(integer), dirty_factor)
+            )
 
         } else { // Is a Bracket Expression (expect a left bracket)
 
@@ -40,28 +40,28 @@ impl Factor {
                     rest_of_expr = dirty_factor;
                     Factor::Expr(Box::new(expr))
                 },
-                Err(err) => return Err(err),
+                _ => return Err(Box::new(ParseFactorError)),
             };
 
             match Operator::parse(rest_of_expr) {
                 Ok((Operator::RightBracket, dirty_factor)) => {
                     rest_of_expr = dirty_factor;
                 },
-                Ok(_) => return Err("Expect a ')'"),
-                Err(err) => return Err(err),
+                _ => return Err(Box::new(ParseFactorError)),
             };
 
             Ok((factor, rest_of_expr))
         }
     }
 
-    pub fn eval(&self) -> Result<i32, &str> {
+    pub fn eval(&self) -> Result<i32> {
         match *self {
             Factor::Expr(ref expr) => expr.eval(),
             Factor::Integer(ref integer) => integer.eval(),
         }
     }
 }
+
 
 impl fmt::Display for Factor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -71,3 +71,6 @@ impl fmt::Display for Factor {
         }
     }
 }
+
+use std::error::Error;
+new_error_type!(ParseFactorError);
