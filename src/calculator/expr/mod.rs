@@ -1,4 +1,4 @@
-use std::{result, error as std_error};
+use super::super::std;
 use std::fmt;
 use self::term::Term;
 use self::operator::Operator;
@@ -11,7 +11,7 @@ mod term;
 mod factor;
 mod integer;
 
-type Result<T> = result::Result<T, Box<std_error::Error>>;
+type Result<T> = std::result::Result<T, Box<std::error::Error>>;
 
 pub struct Expr {
     subexpr: Option<Box<Expr>>,

@@ -1,11 +1,11 @@
-mod expr;
-
 use std::error;
 use std::fmt;
 use std::io::{self, Write};
 use std::result;
 
 use self::expr::Expr;
+
+mod expr;
 
 
 const PROMPT_DEFAULT: &'static str = ">> ";

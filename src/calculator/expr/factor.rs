@@ -1,4 +1,6 @@
 use std::fmt;
+use std::error::{self, Error};
+
 use super::{Expr, Result};
 use super::operator::Operator;
 use super::integer::Integer;
@@ -72,5 +74,5 @@ impl fmt::Display for Factor {
     }
 }
 
-use std::error::Error;
+
 new_error_type!(ParseFactorError);

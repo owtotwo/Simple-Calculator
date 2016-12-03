@@ -1,4 +1,6 @@
 use std::fmt;
+use std::error::{self, Error};
+
 use super::Result;
 
 
@@ -38,7 +40,7 @@ impl fmt::Display for Operator {
     }
 }
 
-use std::error::Error;
+
 new_error_type!(
     ParseOperatorError,
     "expect '+', '-', '*', '/', '(' or ')'"

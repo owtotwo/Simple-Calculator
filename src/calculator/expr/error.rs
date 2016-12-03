@@ -1,4 +1,5 @@
 use std::fmt;
+use std::error::{self, Error};
 
 ///////////////////////////////////////////
 //  Aux Macro for creating the error type
@@ -9,7 +10,6 @@ macro_rules! new_error_type {
     );
 
     ($Error: ident, $Description: expr) => (
-        use std::error;
         #[derive(Debug)]
         pub struct $Error;
         impl error::Error for $Error {
@@ -42,7 +42,7 @@ pub enum EvalErrorKind {
     Overflow,
 }
 
-use std::error;
+
 impl error::Error for EvalError {
     fn description(&self) -> &str {
         match self.kind {
@@ -52,5 +52,5 @@ impl error::Error for EvalError {
     }
 }
 
-use std::error::Error;
+
 impl_display_for_error!(EvalError);
