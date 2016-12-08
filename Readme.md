@@ -1,9 +1,11 @@
 # 用Rust实现简单的命令行计算器 #
 
+
 ## 目的 ##
 * 练习使用新语言。
 * 熟练新语言的语法特性以及异常处理等常见的编程模式，并且
 对简单的数组处理和字符处理以及模块管理等部分进行练手。
+
 
 ## 要求 ##
 * 基于命令行实现一个能对32位有符号整数(-2147483648 ~ 
@@ -19,7 +21,10 @@
 * 无论输入错误与否，计算成功与否，皆在输出相应信息后另起
 一行继续下一次的输入。
 * 输入Ctrl+C则立即结束程序(shutdown)。
-* 若直接输入EOF则退出程序(exit)。
+* 若直接输入EOF则退出程序(exit)。  
+
+Ps: 暂定四则运算**右结合**（为了简化处理**左递归**问题）。
+
 
 ## Backus–Naur Form ##
 ``` BNF
@@ -44,6 +49,7 @@
 <digit>   ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 ```
 
+
 ## Project Structure ##
 ``` Directory-Tree
 src
@@ -59,5 +65,7 @@ src
 └── main.rs
 ```
 
+
 ## References ##
-[Elementary arithmetic](https://en.wikipedia.org/wiki/Elementary_arithmetic)
+[Elementary Arithmetic](https://en.wikipedia.org/wiki/Elementary_arithmetic)
+[Associative Property](https://en.wikipedia.org/wiki/Associative_property)
